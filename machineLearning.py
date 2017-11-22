@@ -28,10 +28,18 @@ def main():
 		training.append(json.loads(trainingFile.readline().strip()))
 
 	# split training set into 6 subsets (to use k-Fold cross validation on)
+	subset1 = training[0:299]
+	subset2 = training[299:598]
+	subset3 = training[598:897]
+	subset4 = training[897:1196]
+	subset5 = training[1196:1495]
+	subset6 = training[1495:1795]
 
-	# train algorithm on 5 training subsets
+	# k-Fold cross validation
+	for i in range(0, 6):
+		# train algorithm on 5 training subsets
 
-	# test algorithm on remaining subset
+		# test algorithm on remaining i subset
 
 if __name__ == "__main__":
 	main()
