@@ -4,15 +4,39 @@
 
 import json
 
+#yes or no
+attributeValue = []
+
 def SelectFeature(Examples):
 	pass
-	# Pick Feature that best splits Examples into different result categories
+
+    #feature = pick best feature
+    # Pick Feature that best splits Examples into different result categories
+
+    #value of yes or no
+    #for value in feature:
+    # for item in testVal:
+        #if item has the ingrediant
+            #put them into a list or set
+        #else
+            #put them into another set
+        #if the cuisine is the same
+            #MARK IT???????????????
+        #else:
+            #SelectFeatures(list)
+
 	# For each Value of Feature
 		# Find Subset S of Examples such that Feature == Value
 		# If all examples in S are in same result category
 			# Mark relevant node in the tree with that category
 		# Else
 			# Call SelectFeature(S)
+
+
+def information_gain(examples, attribute, entropy):
+    gain = entropy
+    for value in attributeValue:
+    	pass
 
 def main():
 	# import ingredients
@@ -37,6 +61,7 @@ def main():
 
 	# k-Fold cross validation
 	for i in range(0, 6):
+		pass
 		# train algorithm on 5 training subsets
 
 		# test algorithm on remaining i subset
