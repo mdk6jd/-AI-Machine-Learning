@@ -4,10 +4,30 @@
 
 import json
 
+# node class
+class Node:
+	def __init__(self, examples):
+		# list of examples
+		self.examples = examples 
+		# classifying feature
+		self.feature = None
+		# yes and no pointers
+		self.yesNode = None
+		self.noNode = None
+
+	def setFeature(self, feature):
+		self.feature = feature
+
+	def setYesNode(self, node):
+		self.yesNode = node
+
+	def setNoNode(self, node):
+		self.noNode = node
+
 #yes or no
 attributeValue = []
 
-def SelectFeature(Examples):
+def SelectFeature(rootNode):
 	pass
 
     #feature = pick best feature
@@ -23,7 +43,7 @@ def SelectFeature(Examples):
         #if the cuisine is the same
             #MARK IT???????????????
         #else:
-            #SelectFeatures(list)
+            #SelectFeature(list)
 
 	# For each Value of Feature
 		# Find Subset S of Examples such that Feature == Value
@@ -37,6 +57,21 @@ def information_gain(examples, attribute, entropy):
     gain = entropy
     for value in attributeValue:
     	pass
+
+# build the decision tree
+def buildTree(rootNode):
+	SelectFeature(rootNode)
+
+# test the decision tree
+def testTree(rootNode, examples):
+	numberIncorrect = 0
+	for example in examples:
+		# traverse decision tree using features in example 
+		# compare resulting cuisine with actual cuisine
+		# if(!correct): numberIncorrect+=1
+		pass
+	return numberIncorrect
+
 
 def main():
 	# import ingredients
@@ -60,11 +95,19 @@ def main():
 	subset6 = training[1495:1795]
 
 	# k-Fold cross validation
-	for i in range(0, 6):
-		pass
-		# train algorithm on 5 training subsets
+	# train algorithm on 5 training subsets
+	# test algorithm on remaining i subset
 
-		# test algorithm on remaining i subset
+	# test on subset1
+	trainingSubset = subset2 + subset3 + subset4 + subset5 + subset6
+	testingSubset = subset1
+	# build tree
+	rootNode = Node(trainingSubset)
+	decisionTree = buildTree(rootNode)
+	# test tree
+	numberIncorrect = testTree(rootNode, testingSubset)
+	# calculate percent incorrect
+	# percentIncorrect = numberIncorrect/299 * 100
 
 if __name__ == "__main__":
 	main()
