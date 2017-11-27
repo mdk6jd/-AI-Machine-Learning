@@ -3,12 +3,13 @@
 # Kathy Xie, Monica Kuo
 
 import json
+import math
 
 # node class
 class Node:
 	def __init__(self, examples):
 		# list of examples
-		self.examples = examples 
+		self.examples = examples
 		# feature (ingredient)
 		self.feature = None
 		# category (cuisine)
@@ -33,7 +34,7 @@ class Node:
 attributeValue = []
 
 # TODO ----------
-# find the best feature to split the examples based on 
+# find the best feature to split the examples based on
 # best feature will be the ingredient that achieves the most even split
 def SelectFeature(examples):
 	pass
@@ -43,11 +44,70 @@ def SelectFeature(examples):
 	# ingredient that has count closest to len(examples)/2 will be best ingredient
 	# return this ingredient
 
-# TODO ----------
-def information_gain(examples, attribute, entropy):
-    gain = entropy
-    for value in attributeValue:
-    	pass
+
+# data = test set (cuisine)
+def entropy(data, target_attr):
+	val_freq = {}
+	data_entropy = 0.0
+
+	#calculate frequency of each of the values in target attribute Value
+	#yes/no for ingredients, 20 different cuisine
+	#target_attr is cuisine and target_attr is ingredient
+	if (target_attr == 'cuisine'):
+		for dish in data:
+			if (dish.get('cuisine') in val_freq):
+				val_freq[ dish.get('cuisine') ] += 1.0
+			else:
+				val_freq[ dish.get('cuisine') ] = 1.0
+	else:
+		for dish in data:
+			hasIngredient = False
+			if target_attr in dish.get('ingredients'):
+				hasIngredient = True
+
+			if (hasIngredient in val_freq):
+				val_freq[ hasIngredient ] += 1.0
+			else:
+				val_freq[ hasIngredient ] = 1.0
+
+	#calculate entropty of data for target attribute, using S = Sum every attr value (p log p)
+	for freq in val_freq.values():
+		data_entropy += (-freq/len(data)) * math.log(freq/len(data), 2)
+
+	return data_entropy
+
+
+def gain(data, attr, target_attr):
+	#caculates info gain (reduction in entropy) by splitting data on chosen attribute (attr)
+	val_freq = {}
+	subset_entropy = 0.0
+
+	#calculate frequency of each values in attribute
+	if (attr == 'cuisine'):
+		for dish in data:
+			if (dish.get('cuisine') in val_freq):
+				val_freq[ dish.get('cuisine') ] += 1.0
+			else:
+				val_freq[ dish.get('cuisine') ] = 1.0
+	else:
+		for dish in data:
+			hasIngredient = False
+			if attr in dish.get('ingredients'):
+				hasIngredient = True
+			if (hasIngredient in val_freq):
+				val_freq[ hasIngredient ] += 1.0
+			else:
+				val_freq[ hasIngredient ] = 1.0
+
+	#calculate sum of entropy for each suset of dishes
+	for val in val_freq.keys():
+		val_prob = val_freq[val]/sum(val_freq.values())
+		data_subset = [dish for dish in data if (dish.get('cuisine') == val or attr in dish.get('ingredients') == val)]
+		subset_entropy += val_prob * entropy(data_subset,target_attr)
+
+	return (entropy(data, target_attr) - subset_entropy)
+
+
 
 # returns whether or not all examples are of the same category
 def sameCategory(examples):
@@ -69,7 +129,7 @@ def buildTree(rootNode):
 
 		# if all examples are in the same result category,
 		# mark node in the tree with that category and continue to next loop
-		# category = cuisine 
+		# category = cuisine
 		sameCuisine = sameCategory(examples)
 		if(sameCuisine):
 			category = examples[0]["cuisine"]
@@ -91,12 +151,17 @@ def buildTree(rootNode):
 		# create nodes for yes and no sublists
 		yesNode = Node(yes)
 		noNode = Node(no)
-		# add nodes to decision tree 
+		# add nodes to decision tree
 		currentNode.setYesNode(yes)
 		currentNode.setNoNode(no)
 		# add nodes to queue
 		queue.append(yesNode)
 		queue.append(noNode)
+
+
+
+
+
 
 # TODO ----------
 # test the decision tree
@@ -125,6 +190,7 @@ def main():
 	for i in range(0, 1794):
 		training.append(json.loads(trainingFile.readline().strip()))
 
+
 	# split training set into 6 subsets (to use k-Fold cross validation on)
 	subset1 = training[0:299]
 	subset2 = training[299:598]
@@ -148,7 +214,12 @@ def main():
 	# calculate percent incorrect
 	# percentIncorrect = numberIncorrect/299 * 100
 
-	# repeat above code k-1 times 
+	# repeat above code k-1 times
+
+	#print(entropy(training, "garlic"))
+	print(gain(training, "cuisine", "garlic"))
+
+
 
 if __name__ == "__main__":
 	main()
