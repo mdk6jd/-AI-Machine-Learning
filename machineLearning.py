@@ -4,6 +4,7 @@
 
 import json
 import math
+import sys
 
 # node class
 class Node:
@@ -33,16 +34,21 @@ class Node:
 #yes or no
 attributeValue = []
 
-# TODO ----------
+
 # find the best feature to split the examples based on
 # best feature will be the ingredient that achieves the most even split
-def SelectFeature(examples):
-	pass
-	# create a dict where all the keys are the ingredients and all the values
-	# are counts of the occurrences of each ingredient in all of the examples.
-
-	# ingredient that has count closest to len(examples)/2 will be best ingredient
-	# return this ingredient
+def selectFeature(data, attrList, target_attr):
+	#cycle through each attribute and calculates info gain
+	#choose best gain
+	bestGain = sys.float_info.min
+	bestIngredient = ''
+	for ingredient in attrList:
+		infoGain = gain(data, ingredient, target_attr)
+		if infoGain > bestGain:
+			bestGain = infoGain
+			bestIngredient = ingredient
+	return ingredient
+	#return bestGain
 
 
 # data = test set (cuisine)
@@ -117,6 +123,65 @@ def sameCategory(examples):
 			return False
 	return True
 
+def get_values(data, attr):
+	#cycles through each dish in data and return list of values for attribute
+	val_freq = {}
+	data_entropy = 0.0
+
+	for dish in data:
+		hasIngredient = False
+		if attr in dish.get('ingredients'):
+			hasIngredient = True
+		if (hasIngredient in val_freq):
+			val_freq[ hasIngredient ] += 1.0
+		else:
+			val_freq[ hasIngredient ] = 1.0
+	return val_freq.keys()
+
+
+def get_examples(data, best, val):
+	#returns list of dishes in data set that have val for the best attribute
+	dishResult = []
+	for dish in data:
+		hasIngredient = False
+		if best in dish.get('ingredients'):
+			hasIngredient = True
+		if hasIngredient == val:
+			dishResult.append(dish)
+	#print (dishResult)
+	return dishResult
+
+def buildDecisionTree(data, attributes, target_attr):
+	#returns new decision tree based on the exmaples given
+	data = data [:]
+	#values of the cuisine
+	vals = [dish.get('cuisine') for dish in data]
+	default = {} #Node with Italian as value ?????????????????
+
+	#if there's no example set or if the ingredients list is empty
+	if not data or (len(attributes)-1) <= 0:
+		return default
+	#if all dish are same cuisine then return that classification
+	elif vals.count(vals[0]) == len(vals):
+		return vals[0]
+	else:
+		#choose next best attribute
+		best = selectFeature(data, attributes, target_attr)
+		#create new tree/node with best attribute and empty dictionary
+		tree = {best:{}}
+		#create new decision tree/sub node for each value in best attributes
+		for val in get_values(data, best):
+			subtree = buildDecisionTree(
+				get_examples(data, best, val),
+				[a for a in attributes if a != best],
+				target_attr
+			)
+
+			#add new subtree to empty dictionary in our new tree/nodes
+			tree[best][val] = subtree
+	return tree
+
+
 
 # build the decision tree
 def buildTree(rootNode):
@@ -138,7 +203,7 @@ def buildTree(rootNode):
 
 		# Pick Feature that best splits Examples into different result categories
 		# feature = ingredient
-		feature = SelectFeature(currentNode)
+		feature = selectFeature(currentNode)
 		currentNode.setFeature(feature)
 		# split examples into yes and no sublists based on feature
 		yes = []
@@ -216,9 +281,8 @@ def main():
 
 	# repeat above code k-1 times
 
-	#print(entropy(training, "garlic"))
-	print(gain(training, "cuisine", "garlic"))
-
+	#print( selectFeature(training, ingredients, 'cuisine') )
+	print(buildDecisionTree(training, ingredients, "cuisine"))
 
 
 if __name__ == "__main__":
