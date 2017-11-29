@@ -1,11 +1,11 @@
 # AI - Homework 4
 # Machine Learning
-# Kathy Xie, Monica Kuo
+# Katharine Xie, Monica Kuo
 
 import json
 import math
 import sys
-
+sys.setrecursionlimit(10000)
 # node class
 class Node:
 	def __init__(self, examples):
@@ -148,8 +148,8 @@ def get_examples(data, best, val):
 			hasIngredient = True
 		if hasIngredient == val:
 			dishResult.append(dish)
-	#print (dishResult)
 	return dishResult
+
 
 def buildDecisionTree(data, attributes, target_attr):
 	#returns new decision tree based on the exmaples given
@@ -170,15 +170,24 @@ def buildDecisionTree(data, attributes, target_attr):
 		#create new tree/node with best attribute and empty dictionary
 		tree = {best:{}}
 		#create new decision tree/sub node for each value in best attributes
-		for val in get_values(data, best):
-			subtree = buildDecisionTree(
-				get_examples(data, best, val),
-				[a for a in attributes if a != best],
-				target_attr
-			)
+		#for val in get_values(data, best):
+		subtreeTrue = buildDecisionTree(
+			get_examples(data, best, True),
+			[a for a in attributes if a != best],
+			target_attr
+		)
 
-			#add new subtree to empty dictionary in our new tree/nodes
-			tree[best][val] = subtree
+		#add new subtree to empty dictionary in our new tree/nodes
+		tree[best][True] = subtreeTrue
+
+		subtreeFalse = buildDecisionTree(
+			get_examples(data, best, False),
+			[a for a in attributes if a != best],
+			target_attr
+		)
+
+		#add new subtree to empty dictionary in our new tree/nodes
+		tree[best][False] = subtreeFalse
 	return tree
 
 
@@ -257,7 +266,7 @@ def main():
 
 
 	# split training set into 6 subsets (to use k-Fold cross validation on)
-	subset1 = training[0:299]
+	subset1 = training[0:100]
 	subset2 = training[299:598]
 	subset3 = training[598:897]
 	subset4 = training[897:1196]
@@ -282,8 +291,7 @@ def main():
 	# repeat above code k-1 times
 
 	#print( selectFeature(training, ingredients, 'cuisine') )
-	print(buildDecisionTree(training, ingredients, "cuisine"))
-
+	print(buildDecisionTree(subset1, ingredients, "cuisine"))
 
 if __name__ == "__main__":
 	main()
