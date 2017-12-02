@@ -2,10 +2,13 @@
 # Machine Learning
 # Katharine Xie, Monica Kuo
 
+
 import json
 import math
 import sys
 sys.setrecursionlimit(10000)
+
+
 # node class
 class Node:
 	def __init__(self, examples):
@@ -31,33 +34,49 @@ class Node:
 	def setNoNode(self, node):
 		self.noNode = node
 
+	def print(self):
+		exampleNumbers = []
+		for i in range(0, len(self.examples)):
+			exampleNumbers.append(self.examples[i]["id"])
+		print(exampleNumbers)
+		# at leaf of tree
+		if(self.category != None):
+			print(self.category)
+		# at inner node of tree, reursively print child nodes
+		if(self.yesNode != None):
+			self.yesNode.print()
+		if(self.noNode != None):
+			self.noNode.print()
+
 #yes or no
 attributeValue = []
 
 
-
 # build the decision tree
-def buildTree(rootNode):
-	queue = [rootNode]
-	while(queue!=[]):
+def buildTree(currentNode, ingredients):
 
-		# get current node
-		currentNode = queue.pop(0)
-		examples = currentNode.examples
+	# get current node examples
+	examples = currentNode.examples
+	'''
+	print()
+	for example in examples:
+		print(example["id"])
+	'''
 
-		# if all examples are in the same result category,
-		# mark node in the tree with that category and continue to next loop
-		# category = cuisine
-		sameCuisine = sameCategory(examples)
-		if(sameCuisine):
-			category = examples[0]["cuisine"]
-			currentNode.setCategory(category)
-			continue
+	# if all examples are in the same result category,
+	# mark node in the tree with that category and exit out of recursion
+	# category = cuisine
+	sameCuisine = sameCategory(examples)
+	if(sameCuisine):
+		category = examples[0]["cuisine"]
+		currentNode.setCategory(category)
 
+	else:
 		# Pick Feature that best splits Examples into different result categories
 		# feature = ingredient
-		feature = selectFeature(currentNode)
+		feature = selectFeature(examples, ingredients, "cuisine")
 		currentNode.setFeature(feature)
+
 		# split examples into yes and no sublists based on feature
 		yes = []
 		no = []
@@ -66,32 +85,52 @@ def buildTree(rootNode):
 				yes.append(example)
 			else:
 				no.append(example)
-		# create nodes for yes and no sublists
-		yesNode = Node(yes)
-		noNode = Node(no)
-		# add nodes to decision tree
-		currentNode.setYesNode(yes)
-		currentNode.setNoNode(no)
-		# add nodes to queue
-		queue.append(yesNode)
-		queue.append(noNode)
+
+		if(yes!=[]):
+			# create nodes for yes sublist
+			yesNode = Node(yes)
+			# add node to decision tree
+			currentNode.setYesNode(yesNode)
+			# recurse on node
+			buildTree(yesNode, ingredients)
+
+		if(no!=[]):
+			# create nodes for no sublist
+			noNode = Node(no)
+			# add node to decision tree
+			currentNode.setNoNode(noNode)
+			# recurse on node
+			buildTree(noNode, ingredients)
+
+	return currentNode
 
 
-
-
-
-
-# TODO ----------
 # test the decision tree
 def testTree(rootNode, examples):
 	numberIncorrect = 0
 	for example in examples:
 		# traverse decision tree using features in example
 		# stop when node.category != None
+		currentNode = rootNode
+		testCategory = None
+		while(True):
+			# category reached
+			if(currentNode.category!=None):
+				testCategory = currentNode.category
+				break
+			# no category determined, traverse tree
+			feature = currentNode.feature
+			if(feature in example["ingredients"]):
+				currentNode = currentNode.yesNode
+			else:
+				currentNode = currentNode.noNode
 
 		# compare resulting cuisine with actual cuisine
 		# if(!correct): numberIncorrect+=1
-		pass
+		trueCategory = example["cuisine"]
+		if(testCategory!=trueCategory):
+			numberIncorrect += 1
+
 	return numberIncorrect
 
 
@@ -244,8 +283,6 @@ def buildDecisionTree(data, attributes, target_attr):
 	return tree
 
 
-
-
 def main():
 	# import ingredients
 	ingredients = []
@@ -254,20 +291,28 @@ def main():
 		ingredients.append(ingredientsFile.readline().strip()[1:-1])
 
 	# import training set
-	training = []
+	# split training set into 6 subsets (to use k-Fold cross validation on)
+	subset1 = []
+	subset2 = []
+	subset3 = []
+	subset4 = []
+	subset5 = []
+	subset6 = []
 	trainingFile = open('training.json', 'r')
 	for i in range(0, 1794):
-		training.append(json.loads(trainingFile.readline().strip()))
+		if(i%6 == 0):
+			subset1.append(json.loads(trainingFile.readline().strip()))
+		elif(i%6 == 1):
+			subset2.append(json.loads(trainingFile.readline().strip()))
+		elif(i%6 == 2):
+			subset3.append(json.loads(trainingFile.readline().strip()))
+		elif(i%6 == 3):
+			subset4.append(json.loads(trainingFile.readline().strip()))
+		elif(i%6 == 4):
+			subset5.append(json.loads(trainingFile.readline().strip()))
+		elif(i%6 == 5):
+			subset6.append(json.loads(trainingFile.readline().strip()))
 
-
-	# split training set into 6 subsets (to use k-Fold cross validation on)
-	#subset1 = training[50:100]
-	subset1 = training[0:299]
-	subset2 = training[299:598]
-	subset3 = training[598:897]
-	subset4 = training[897:1196]
-	subset5 = training[1196:1495]
-	subset6 = training[1495:1795]
 
 	# k-Fold cross validation
 	# train algorithm on 5 training subsets
@@ -278,16 +323,19 @@ def main():
 	testingSubset = subset1
 	# build tree
 	rootNode = Node(trainingSubset)
-	# decisionTree = buildTree(rootNode) # uncomment this to build tree
+	decisionTree = buildTree(rootNode, ingredients) # uncomment this to build tree
+	decisionTree.print()
 	# test tree
 	numberIncorrect = testTree(rootNode, testingSubset)
 	# calculate percent incorrect
-	# percentIncorrect = numberIncorrect/299 * 100
+	percentIncorrect = numberIncorrect/299 * 100
+	print(percentIncorrect)
 
 	# repeat above code k-1 times
 
+
 	#print( selectFeature(training, ingredients, 'cuisine') )
-	buildDecisionTree(trainingSubset, ingredients, "cuisine")
+	#buildDecisionTree(trainingSubset, ingredients, "cuisine")
 	#entropy(trainingSubset, "cuisine")
 	#ingredients2 = ["salt"]
 	#selectFeature(trainingSubset, ingredients, "cuisine")
