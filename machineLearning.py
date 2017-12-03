@@ -324,14 +324,77 @@ def main():
 	# build tree
 	rootNode = Node(trainingSubset)
 	decisionTree = buildTree(rootNode, ingredients) # uncomment this to build tree
-	decisionTree.print()
+	# decisionTree.print()
 	# test tree
 	numberIncorrect = testTree(rootNode, testingSubset)
 	# calculate percent incorrect
 	percentIncorrect = numberIncorrect/299 * 100
 	print(percentIncorrect)
 
-	# repeat above code k-1 times
+	# test on subset2
+	trainingSubset = subset1 + subset3 + subset4 + subset5 + subset6
+	testingSubset = subset2
+	# build tree
+	rootNode = Node(trainingSubset)
+	decisionTree = buildTree(rootNode, ingredients) # uncomment this to build tree
+	# decisionTree.print()
+	# test tree
+	numberIncorrect = testTree(rootNode, testingSubset)
+	# calculate percent incorrect
+	percentIncorrect = numberIncorrect/299 * 100
+	print(percentIncorrect)
+
+	# test on subset3
+	trainingSubset = subset1 + subset2 + subset4 + subset5 + subset6
+	testingSubset = subset3
+	# build tree
+	rootNode = Node(trainingSubset)
+	decisionTree = buildTree(rootNode, ingredients) # uncomment this to build tree
+	# decisionTree.print()
+	# test tree
+	numberIncorrect = testTree(rootNode, testingSubset)
+	# calculate percent incorrect
+	percentIncorrect = numberIncorrect/299 * 100
+	print(percentIncorrect)
+
+	# test on subset4
+	trainingSubset = subset1 + subset2 + subset3 + subset5 + subset6
+	testingSubset = subset4
+	# build tree
+	rootNode = Node(trainingSubset)
+	decisionTree = buildTree(rootNode, ingredients) # uncomment this to build tree
+	# decisionTree.print()
+	# test tree
+	numberIncorrect = testTree(rootNode, testingSubset)
+	# calculate percent incorrect
+	percentIncorrect = numberIncorrect/299 * 100
+	print(percentIncorrect)
+
+	# test on subset5
+	trainingSubset = subset1 + subset2 + subset3 + subset4 + subset6
+	testingSubset = subset5
+	# build tree
+	rootNode = Node(trainingSubset)
+	decisionTree = buildTree(rootNode, ingredients) # uncomment this to build tree
+	# decisionTree.print()
+	# test tree
+	numberIncorrect = testTree(rootNode, testingSubset)
+	# calculate percent incorrect
+	percentIncorrect = numberIncorrect/299 * 100
+	print(percentIncorrect)
+
+	# test on subset6
+	trainingSubset = subset1 + subset2 + subset3 + subset4 + subset5
+	testingSubset = subset6
+	# build tree
+	rootNode = Node(trainingSubset)
+	decisionTree = buildTree(rootNode, ingredients) # uncomment this to build tree
+	# decisionTree.print()
+	# test tree
+	numberIncorrect = testTree(rootNode, testingSubset)
+	# calculate percent incorrect
+	percentIncorrect = numberIncorrect/299 * 100
+	print(percentIncorrect)
 
 
 	#print( selectFeature(training, ingredients, 'cuisine') )
